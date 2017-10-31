@@ -19,9 +19,9 @@ module Faktory
     # MY_FAKTORY_URL=tcp://:somepass@my-server.example.com:7419
     #
     # Note above, the URL can contain the password for secure installations.
-    def initialize(url: 'tcp://localhost:7419', debug: false)
+    def initialize(url: nil, debug: false)
       @debug = debug
-      @location = uri_from_env || URI(url)
+      @location = URI(url || url_from_env || 'tcp://localhost:7419')
       open
     end
 
@@ -206,7 +206,7 @@ module Faktory
 
     # FAKTORY_PROVIDER=MY_FAKTORY_URL
     # MY_FAKTORY_URL=tcp://:some-pass@some-hostname:7419
-    def uri_from_env
+    def url_from_env
       prov = ENV['FAKTORY_PROVIDER']
       return nil unless prov
       raise(ArgumentError, <<-EOM) if prov.index(":")
@@ -215,10 +215,10 @@ Invalid FAKTORY_PROVIDER '#{prov}', it should be the name of the ENV variable th
     MY_FAKTORY_URL=tcp://:some-pass@some-hostname:7419
 EOM
       val = ENV[prov]
-      return URI(val) if val
+      return val if val
 
       val = ENV['FAKTORY_URL']
-      return URI(val) if val
+      return val if val
       nil
     end
 
